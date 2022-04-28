@@ -6,6 +6,8 @@ from lxml import etree
 header = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'
 }
+
+# 转码
 for i in range(1,10):
     response = requests.get(url='https://pic.netbian.com/4kmeinv/index_%s.html'%i, headers=header)
     # response.encoding = 'utf-8'
@@ -19,6 +21,7 @@ for i in range(1,10):
     for pro in pro_list:
         picUrl = 'https://pic.netbian.com' + pro.xpath('./a/img/@src')[0]
         picName = pro.xpath('./a/b/text()')[0]
+        # 转码
         picName = picName.encode('iso-8859-1').decode('gbk')
         print(picName, picUrl)
         with open('./4k/picName%s.jpg' % picName, 'wb') as fp:
