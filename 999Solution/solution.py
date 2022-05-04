@@ -114,38 +114,74 @@ class solution:
         ans = []
         # python 的比较器写法
         # points.sort(key=lambda l1: l1[0])
-        points.sort(key=cmp_to_key(lambda l1,l2 :l1[0]-l2[0] if l1[0]!=l2[0] else l1[1]-l2[1]))
+        points.sort(key=cmp_to_key(lambda l1, l2: l1[0] - l2[0] if l1[0] != l2[0] else l1[1] - l2[1]))
         for point in points:
-            if len(ans)==0:
+            if len(ans) == 0:
                 ans.append(point)
             else:
                 last = ans[-1]
-                if last[1]>=point[0]:
-                    ans[-1] = [point[0],last[1] if last[1]<=point[1] else point[1]]
+                if last[1] >= point[0]:
+                    ans[-1] = [point[0], last[1] if last[1] <= point[1] else point[1]]
                 else:
                     ans.append(point)
         return len(ans)
 
-    #https://leetcode.cn/problems/rabbits-in-forest/
+    # https://leetcode.cn/problems/rabbits-in-forest/
     def numRabbits(self, answers: List[int]) -> int:
         map = {}
         answers.sort()
         for x in answers:
-            if map.keys().__contains__(x) :
+            if map.keys().__contains__(x):
                 v = map[x]
                 map[x] = v + 1
             else:
                 map[x] = 1
 
-        count=0
+        count = 0
         for k in map.keys():
             v = map[k]
-            count+=((k+1)*(v//(k+1) if v%(k+1)==0 else v//(k+1)+1))
+            count += ((k + 1) * (v // (k + 1) if v % (k + 1) == 0 else v // (k + 1) + 1))
         return count
 
+    # https: // leetcode.cn / problems / subarray - product - less - than - k /
+    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
+        nums.sort(key=lambda l1:l1)
+        cjnums = []
+        curcj = 1
+        for num in nums:
+            curcj *= num
+            cjnums.append(curcj)
+
+        return self.processNumSubarrayProductLessThanK(cjnums, k)
+
+    # 连续子数组！所以不是递归套路
+    # 用前缀和
+    # [10, 5, 2, 6]
+    # 10 50 100 600
+    # 10 50 5 10 2 60 12 6
+    # 比较慢 但能过 用滑动窗口很快！
+    def processNumSubarrayProductLessThanK(self, cjnums, k):
+        total=0
+        for i in range (0,cjnums.__len__()):
+            if cjnums[i]>=k:
+                if i-1>=0:
+                    for j in range(i-1,-1,-1):# range 倒序
+                        # print(cjnums[j])
+                        if cjnums[i]//cjnums[j]<k :
+                            total += 1
+                        else :
+                            break
+            else:
+                total+=(i+1)
+
+        return total
+
+
 test1 = solution()
-print(test1.numRabbits([1,1,2]))
-print(test1.findMinArrowShots([[9,12],[1,10],[4,11],[8,12],[3,9],[6,9],[6,7]]))
+print(test1.numSubarrayProductLessThanK([10, 5, 2, 6,1000], 100))
+
+print(test1.numRabbits([1, 1, 2]))
+print(test1.findMinArrowShots([[9, 12], [1, 10], [4, 11], [8, 12], [3, 9], [6, 9], [6, 7]]))
 print(test1.sumNums(3))
 print(test1.sumNums(9))
 
