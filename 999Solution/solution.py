@@ -1,6 +1,5 @@
 from collections import deque
 from functools import cmp_to_key
-from queue import Queue
 from typing import List, Optional
 
 
@@ -15,6 +14,42 @@ class TreeNode:
         self.val = x
         self.left = None
         self.right = None
+
+
+class BSTIterator:
+    list = []
+    index = 0
+
+    def __init__(self, root: TreeNode):
+        self.process(root)
+        self.list.insert(0, self.list[0] - 1)
+
+    def next(self) -> int:
+        self.index += 1
+        return self.list[self.index]
+
+    def hasNext(self) -> bool:
+        nextindex = self.index + 1
+        return nextindex < len(self.list)
+
+    def process(self, root):
+        if root is None:
+            return
+        self.process(root.left)
+        self.list.append(root.val)
+        self.process(root.right)
+
+
+class RecentCounter:
+
+    def __init__(self):
+        self.q = deque()
+
+    def ping(self, t: int) -> int:
+        self.q.append(t)
+        while self.q[0] < t - 3000:
+            self.q.popleft()
+        return len(self.q)
 
 
 class solution:
@@ -191,12 +226,12 @@ class solution:
         ljq = self.findlj(root, q)
         i = 0
         while True:
-            if i== len(ljp) or i== len(ljq) or ljp[i]!=ljq[i]:
-                return ljp[i-1]
+            if i == len(ljp) or i == len(ljq) or ljp[i] != ljq[i]:
+                return ljp[i - 1]
             else:
-                i +=1
+                i += 1
 
-    def findlj(self, root, fn) :
+    def findlj(self, root, fn):
         if root is None:
             return None
         if root.val == fn.val:
@@ -204,12 +239,12 @@ class solution:
         else:
             lj = self.findlj(root.left, fn)
             if lj:
-                lj.insert(0,root)
+                lj.insert(0, root)
                 return lj
             else:
                 lj = self.findlj(root.right, fn)
                 if lj:
-                    lj.insert(0,root)
+                    lj.insert(0, root)
                     return lj
 
     # https: // leetcode.cn / problems / binary - tree - maximum - path - sum /
@@ -218,6 +253,7 @@ class solution:
         return self.cur
 
     cur = -10000
+
     def processMaxPathSum(self, root):
 
         if root is None:
@@ -226,67 +262,101 @@ class solution:
             x = self.processMaxPathSum(root.left)
             y = self.processMaxPathSum(root.right)
             # 经过root的最大长度
-            a = root.val+(0 if x is None else x)+(0 if y is None else y)
+            a = root.val + (0 if x is None else x) + (0 if y is None else y)
             # root作为头的最大长度
-            b = max(root.val,root.val+(0 if x is None else x),root.val+(0 if y is None else y))
-            self.cur = max(self.cur,a,b)
+            b = max(root.val, root.val + (0 if x is None else x), root.val + (0 if y is None else y))
+            self.cur = max(self.cur, a, b)
             return b
 
-    pathWayNum =0
+    pathWayNum = 0
+
     # https://leetcode.cn/problems/6eUYwP/submissions/ 可以用前缀和 省去很多重复计算
     def pathSum(self, root: TreeNode, targetSum: int) -> int:
-        self.processPathSum(root,targetSum,True)
+        self.processPathSum(root, targetSum, True)
         return self.pathWayNum
 
-    def processPathSum(self, root, targetSum,canNotUseHead):
+    def processPathSum(self, root, targetSum, canNotUseHead):
         if root is None:
             return
         if canNotUseHead:
-            self.processPathSum(root.left,targetSum,True)
+            self.processPathSum(root.left, targetSum, True)
             self.processPathSum(root.right, targetSum, True)
 
-        if targetSum-root.val==0:
-            self.pathWayNum +=1
-        self.processPathSum(root.left,targetSum-root.val,False)
+        if targetSum - root.val == 0:
+            self.pathWayNum += 1
+        self.processPathSum(root.left, targetSum - root.val, False)
         self.processPathSum(root.right, targetSum - root.val, False)
 
+    # https://leetcode.cn/problems/minimum-index-sum-of-two-lists/
+    def findRestaurant(self, list1: List[str], list2: List[str]) -> List[str]:
+        minIndex = 2001
+        minL1Index = []
+        map = {}
+        for i in range(0, len(list1)):
+            map[list1[i]] = i
+        for k in range(0, len(list2)):
+            if map.get(list2[k]) is not None:
+                if k + map.get(list2[k]) < minIndex:
+                    minIndex = k + map.get(list2[k])
+                    minL1Index = [map.get(list2[k])]
+                elif k + map.get(list2[k]) == minIndex:
+                    minL1Index.append(map.get(list2[k]))
+        ans = []
+        for x in minL1Index:
+            ans.append(list1[x])
+        return ans
 
-class RecentCounter:
+    # https://leetcode.cn/problems/implement-strstr/ 经典kmp
+    def strStr(self, haystack: str, needle: str) -> int:
+        # needle
+        if needle is None or len(needle) == 0:
+            return -1
+        if len(needle) > len(haystack):
+            return -1
 
-    def __init__(self):
-        self.q = deque()
+        i = 0
+        j = 0
+        str1 = haystack
+        str2 = needle
+        next = self.kmpNext(str2)
+        while i < len(str1) and j < len(str2):
+            if str1[i] == str2[j]:
+                i += 1
+                j += 1
+            elif j == 0:
+                i += 1
+            else:
+                j = next[j]
+        if j == len(str2):
+            return i - j
+        else:
+            return -1
 
-    def ping(self, t: int) -> int:
-        self.q.append(t)
-        while self.q[0]<t-3000:
-            self.q.popleft()
-        return len(self.q)
-
-class BSTIterator:
-
-    list = []
-    index = 0
-    def __init__(self, root: TreeNode):
-        self.process(root)
-        self.list.insert(0,self.list[0]-1)
-
-    def next(self) -> int:
-        self.index+=1
-        return self.list[self.index]
-
-    def hasNext(self) -> bool:
-        nextindex = self.index+1
-        return nextindex < len(self.list)
-
-    def process(self, root):
-        if root is None:
-            return
-        self.process(root.left)
-        self.list.append(root.val)
-        self.process(root.right)
+    def kmpNext(self, str2):
+        if len(str2) == 1:
+            return [-1]
+        else:
+            next = [-1, 0]
+            i = 2
+            cn = 0
+            while i < len(str2):
+                if str2[i-1] == str2[cn]:
+                    cn += 1
+                    next.append(cn)
+                    i += 1
+                elif cn > 0:
+                    cn = next[cn]
+                else:
+                    next.append(0)
+                    i += 1
+            return next
 
 
 test1 = solution()
+print(test1.kmpNext('abcabcaabcabx'))
+print(test1.strStr('abcabcaabcabx','bcabcaa'))
+test1.findRestaurant(["Shogun", "Tapioca Express", "Burger King", "KFC"],
+                     ["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"])
 t1 = TreeNode(-10)
 t2 = TreeNode(9)
 t3 = TreeNode(20)
@@ -298,18 +368,17 @@ t1.right = t3
 t3.left = t4
 t3.right = t5
 print(test1.maxPathSum(t1))
-print(test1.findlj(t1,t1))
-print(test1.findlj(t1,t2))
-print(test1.findlj(t1,t3))
-print(test1.findlj(t1,t4))
-print(test1.lowestCommonAncestor(t1,t2,t3).val)
+print(test1.findlj(t1, t1))
+print(test1.findlj(t1, t2))
+print(test1.findlj(t1, t3))
+print(test1.findlj(t1, t4))
+print(test1.lowestCommonAncestor(t1, t2, t3).val)
 
 t5 = TreeNode(1)
 obj = BSTIterator(t5)
 print(obj.hasNext())
 print(obj.next())
 print(obj.hasNext())
-
 
 print(test1.numSubarrayProductLessThanK([10, 5, 2, 6, 1000], 100))
 
