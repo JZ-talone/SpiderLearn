@@ -1,4 +1,6 @@
+from collections import deque
 from functools import cmp_to_key
+from queue import Queue
 from typing import List, Optional
 
 
@@ -249,6 +251,16 @@ class solution:
         self.processPathSum(root.right, targetSum - root.val, False)
 
 
+class RecentCounter:
+
+    def __init__(self):
+        self.q = deque()
+
+    def ping(self, t: int) -> int:
+        self.q.append(t)
+        while self.q[0]<t-3000:
+            self.q.popleft()
+        return len(self.q)
 
 class BSTIterator:
 
