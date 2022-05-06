@@ -1,11 +1,18 @@
 from functools import cmp_to_key
-from typing import List
+from typing import List, Optional
 
 
 class ListNode:
     def __init__(self, x):
         self.val = x
         self.next = None
+
+
+class TreeNode:
+    def __init__(self, x):
+        self.val = x
+        self.left = None
+        self.right = None
 
 
 class solution:
@@ -145,7 +152,7 @@ class solution:
 
     # https: // leetcode.cn / problems / subarray - product - less - than - k /
     def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
-        nums.sort(key=lambda l1:l1)
+        nums.sort(key=lambda l1: l1)
         cjnums = []
         curcj = 1
         for num in nums:
@@ -161,24 +168,138 @@ class solution:
     # 10 50 5 10 2 60 12 6
     # 比较慢 但能过 用滑动窗口很快！
     def processNumSubarrayProductLessThanK(self, cjnums, k):
-        total=0
-        for i in range (0,cjnums.__len__()):
-            if cjnums[i]>=k:
-                if i-1>=0:
-                    for j in range(i-1,-1,-1):# range 倒序
+        total = 0
+        for i in range(0, cjnums.__len__()):
+            if cjnums[i] >= k:
+                if i - 1 >= 0:
+                    for j in range(i - 1, -1, -1):  # range 倒序
                         # print(cjnums[j])
-                        if cjnums[i]//cjnums[j]<k :
+                        if cjnums[i] // cjnums[j] < k:
                             total += 1
-                        else :
+                        else:
                             break
             else:
-                total+=(i+1)
+                total += (i + 1)
 
         return total
 
+    # https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        ljp = self.findlj(root, p)
+        ljq = self.findlj(root, q)
+        i = 0
+        while True:
+            if i== len(ljp) or i== len(ljq) or ljp[i]!=ljq[i]:
+                return ljp[i-1]
+            else:
+                i +=1
+
+    def findlj(self, root, fn) :
+        if root is None:
+            return None
+        if root.val == fn.val:
+            return [fn]
+        else:
+            lj = self.findlj(root.left, fn)
+            if lj:
+                lj.insert(0,root)
+                return lj
+            else:
+                lj = self.findlj(root.right, fn)
+                if lj:
+                    lj.insert(0,root)
+                    return lj
+
+    # https: // leetcode.cn / problems / binary - tree - maximum - path - sum /
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        self.processMaxPathSum(root)
+        return self.cur
+
+    cur = -10000
+    def processMaxPathSum(self, root):
+
+        if root is None:
+            return None
+        else:
+            x = self.processMaxPathSum(root.left)
+            y = self.processMaxPathSum(root.right)
+            # 经过root的最大长度
+            a = root.val+(0 if x is None else x)+(0 if y is None else y)
+            # root作为头的最大长度
+            b = max(root.val,root.val+(0 if x is None else x),root.val+(0 if y is None else y))
+            self.cur = max(self.cur,a,b)
+            return b
+
+    pathWayNum =0
+    # https://leetcode.cn/problems/6eUYwP/submissions/ 可以用前缀和 省去很多重复计算
+    def pathSum(self, root: TreeNode, targetSum: int) -> int:
+        self.processPathSum(root,targetSum,True)
+        return self.pathWayNum
+
+    def processPathSum(self, root, targetSum,canNotUseHead):
+        if root is None:
+            return
+        if canNotUseHead:
+            self.processPathSum(root.left,targetSum,True)
+            self.processPathSum(root.right, targetSum, True)
+
+        if targetSum-root.val==0:
+            self.pathWayNum +=1
+        self.processPathSum(root.left,targetSum-root.val,False)
+        self.processPathSum(root.right, targetSum - root.val, False)
+
+
+
+class BSTIterator:
+
+    list = []
+    index = 0
+    def __init__(self, root: TreeNode):
+        self.process(root)
+        self.list.insert(0,self.list[0]-1)
+
+    def next(self) -> int:
+        self.index+=1
+        return self.list[self.index]
+
+    def hasNext(self) -> bool:
+        nextindex = self.index+1
+        return nextindex < len(self.list)
+
+    def process(self, root):
+        if root is None:
+            return
+        self.process(root.left)
+        self.list.append(root.val)
+        self.process(root.right)
+
 
 test1 = solution()
-print(test1.numSubarrayProductLessThanK([10, 5, 2, 6,1000], 100))
+t1 = TreeNode(-10)
+t2 = TreeNode(9)
+t3 = TreeNode(20)
+t4 = TreeNode(15)
+t5 = TreeNode(7)
+
+t1.left = t2
+t1.right = t3
+t3.left = t4
+t3.right = t5
+print(test1.maxPathSum(t1))
+print(test1.findlj(t1,t1))
+print(test1.findlj(t1,t2))
+print(test1.findlj(t1,t3))
+print(test1.findlj(t1,t4))
+print(test1.lowestCommonAncestor(t1,t2,t3).val)
+
+t5 = TreeNode(1)
+obj = BSTIterator(t5)
+print(obj.hasNext())
+print(obj.next())
+print(obj.hasNext())
+
+
+print(test1.numSubarrayProductLessThanK([10, 5, 2, 6, 1000], 100))
 
 print(test1.numRabbits([1, 1, 2]))
 print(test1.findMinArrowShots([[9, 12], [1, 10], [4, 11], [8, 12], [3, 9], [6, 9], [6, 7]]))
