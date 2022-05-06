@@ -351,8 +351,17 @@ class solution:
                     i += 1
             return next
 
+    def removeOccurrences(self, s: str, part: str) -> str:
+        index = self.strStr(s,part)
+        if index<0:
+            return s
+        else:
+            s =s[0:index]+s[index + len(part):len(s)]
+            return self.removeOccurrences(s,part)
+
 
 test1 = solution()
+print(test1.removeOccurrences(s = 'daabcbaabcbc', part = 'abc'))
 print(test1.kmpNext('abcabcaabcabx'))
 print(test1.strStr('abcabcaabcabx','bcabcaa'))
 test1.findRestaurant(["Shogun", "Tapioca Express", "Burger King", "KFC"],
