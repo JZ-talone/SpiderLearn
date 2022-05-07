@@ -1,3 +1,4 @@
+import collections
 from collections import deque
 from functools import cmp_to_key
 from typing import List, Optional
@@ -359,8 +360,48 @@ class solution:
             s =s[0:index]+s[index + len(part):len(s)]
             return self.removeOccurrences(s,part)
 
+    # https: // leetcode.cn / problems / minimum - genetic - mutation /
+    def minMutation(self, start: str, end: str, bank: List[str]) -> int:
+        q = deque()
+        q.append((start,0))
+        while len(q) != 0:
+            gene,step = q.popleft()
+            if gene==end:
+                return step
+            else:
+                for x in range(len(gene)):
+                    for rp in 'ACGT':
+                        newgene = gene[:x]+rp+gene[x+1:]
+                        if newgene!=gene and newgene in bank:
+                            step+=1
+                            q.append((newgene,step))
+                            bank.remove(newgene)
+        return -1
+
+    # https://leetcode.cn/problems/trapping-rain-water/
+    def trap(self, height: List[int]) -> int:
+        stack = list()
+        total = 0
+        i=0
+        while i in range(len(height)):
+            if len(stack)==0 or stack[-1][0]>height[i]:
+                stack.append([height[i],i])
+                i+=1
+            elif stack[-1][0]==height[i]:
+                stack[-1][1] = i
+                i+=1
+            else:
+                x = stack.pop()
+                if len(stack)>0:
+                    total += (min(stack[-1][0],height[i])-x[0])*(i-stack[-1][1]-1)
+                if len(stack)==0 or stack[-1][0]>height[i]:
+                    stack.append([height[i], i])
+        return total
+
 
 test1 = solution()
+print(test1.trap([0,1,0,2,1,0,1,3,2,1,2,1]))
+print(test1.minMutation(start = "AACCGGTT", end = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]))
 print(test1.removeOccurrences(s = 'daabcbaabcbc', part = 'abc'))
 print(test1.kmpNext('abcabcaabcabx'))
 print(test1.strStr('abcabcaabcabx','bcabcaa'))
