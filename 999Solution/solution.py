@@ -398,8 +398,118 @@ class solution:
                     stack.append([height[i], i])
         return total
 
+    #https://leetcode.cn/problems/minimum-absolute-difference/
+    def minimumAbsDifference(self, arr: List[int]) -> List[List[int]]:
+        minposition = []
+        minscore = None
+        arr.sort()
+        for i in range(0, len(arr)-1):
+            if minscore is None :
+                minscore = arr[i+1]-arr[i]
+                minposition.append(i)
+            else:
+                if arr[i+1]-arr[i]==minscore:
+                    minposition.append(i)
+                elif arr[i+1]-arr[i]<minscore:
+                    minscore = arr[i + 1] - arr[i]
+                    minposition = []
+                    minposition.append(i)
+        ans = []
+        for i in minposition:
+            ans.append([arr[i],arr[i+1]])
+        return ans
+
+    # https://leetcode.cn/problems/number-of-good-leaf-nodes-pairs/ 递归返回该节点的对数及小于distanse的各节点个数
+    def countPairs(self, root: TreeNode, distance: int) -> int:
+        ans = self.processCountPairs(root,distance)
+        return ans[0]
+
+    def processCountPairs(self, root, distance):
+        if root is None:
+            return [None,None]
+
+        leftL = self.processCountPairs(root.left,distance)
+        leftR = self.processCountPairs(root.right,distance)
+        if leftL[0] is None and leftR[0] is None:
+            return [0,{1:1}]
+        if leftL[0] is None and leftR[0] is not None:
+            map = {}
+            for k in leftR[1].keys():
+                if k+1<distance:
+                    map[k+1] = leftR[1][k]
+            return [leftR[0],map]
+        if leftL[0] is not None and leftR[0] is  None:
+            map = {}
+            for k in leftL[1].keys():
+                if k+1<distance:
+                    map[k+1] = leftL[1][k]
+            return [leftL[0],map]
+        if leftL[0] is not None and leftR[0] is not None:
+            map = {}
+            for k in leftL[1].keys():
+                if k + 1 < distance:
+                    map[k + 1] = leftL[1][k]
+            for k in leftR[1].keys():
+                if k + 1 < distance:
+                    map[k + 1] = leftR[1][k] + (map[k+1] if map.__contains__(k+1)  else 0)
+            c = leftR[0]+leftL[0]
+            for k in leftL[1].keys():
+                for k1 in leftR[1].keys():
+                    if k+k1<=distance:
+                        c += (leftL[1][k]*leftR[1][k1])
+            return [c,map]
+
+    # https://leetcode.cn/problems/longest-arithmetic-subsequence-of-given-difference/
+    def longestSubsequence(self, arr: List[int], difference: int) -> int:
+        # 会超时 用dp即可
+        # fz = []
+        # maxCount = 0
+        #
+        # for i in arr:
+        #     fz.append(0)
+        # for index in range(0, len(arr)):
+        #     if len(arr)-index < maxCount:
+        #         break
+        #     if fz[index] ==0:
+        #         curCount = 0
+        #         before = None
+        #         use = []
+        #         for index1 in range(index,len(arr)):
+        #             if index1==index:
+        #                 curCount =curCount+1
+        #                 before = arr[index1]
+        #                 use.append(index1)
+        #             else:
+        #                 if arr[index1]-difference==before:
+        #                     if fz[index1] ==0:
+        #                         curCount =curCount+1
+        #                         before = arr[index1]
+        #                         use.append(index1)
+        #                     else:
+        #                         curCount = curCount+fz[index1]
+        #                         break
+        #         for index in range(0, len(use)):
+        #             fz[use[index]] = curCount-index
+        #
+        #         maxCount = max(maxCount,curCount)
+        # return maxCount
+        dp = collections.defaultdict(int)
+        for v in arr:
+            dp[v] = dp[v - difference] + 1
+        return max(dp.values())
+
 
 test1 = solution()
+test1.longestSubsequence([1,5,7,8,5,3,4,2,1],-2)
+c1 = TreeNode(1)
+c2 = TreeNode(2)
+c3 = TreeNode(4)
+c4 = TreeNode(3)
+c1.left = c2
+c2.right = c3
+c1.right = c4
+test1.countPairs(c1,3)
+
 print(test1.trap([0,1,0,2,1,0,1,3,2,1,2,1]))
 print(test1.minMutation(start = "AACCGGTT", end = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]))
 print(test1.removeOccurrences(s = 'daabcbaabcbc', part = 'abc'))
