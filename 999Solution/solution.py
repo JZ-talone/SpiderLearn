@@ -498,8 +498,50 @@ class solution:
             dp[v] = dp[v - difference] + 1
         return max(dp.values())
 
+    # https://leetcode.cn/problems/ZVAVXX/
+    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
+        if k <= 0:
+            return 0
+        l = 0
+        r = 0
+        ret = 0
+        t = 1
+        while r < len(nums):
+            t = t * nums[r]
+            while t >= k and l <= r:
+                t //= nums[l]
+                l += 1
+            if l <= r:
+                ret = ret + r - l + 1
+            r += 1
+        return ret
+
+    # https://leetcode.cn/problems/delete-node-in-a-linked-list/
+    def deleteNode(self, node):
+        """
+        :type node: ListNode
+        :rtype: void Do not return anything, modify node in-place instead.
+        """
+        node.val = node.next.val
+        node.next = node.next.next
+
+    # https: // leetcode.cn / problems / minimum - distance - to - the - target - element /
+    def getMinDistance(self, nums: List[int], target: int, start: int) -> int:
+        return self.processgetMinDistance(nums,target,start,0)
+
+    def processgetMinDistance(self, nums, target, start, d):
+        l = start - d if start-d>=0 else 0
+        r = start +d if start+d<len(nums) else len(nums)-1
+        if nums[l]==target:
+            return start-l
+        if nums[r]==target:
+            return r-start
+        return self.processgetMinDistance(nums,target,start,d+1)
+
+
 
 test1 = solution()
+test1.numSubarrayProductLessThanK(nums = [10,5,2,6], k = 100)
 test1.longestSubsequence([1,5,7,8,5,3,4,2,1],-2)
 c1 = TreeNode(1)
 c2 = TreeNode(2)
